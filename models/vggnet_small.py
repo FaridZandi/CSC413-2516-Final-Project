@@ -78,35 +78,6 @@ class VGG(nn.Module):
         x = self.classifier(x)
         return x
 
-    @classmethod
-    def from_name(cls, model_name, override_params=None):
-        cls._check_model_name_is_valid(model_name)
-        global_params = get_model_params(model_name, override_params)
-        return cls(global_params)
-
-    @classmethod
-    def from_pretrained(cls, model_name, num_classes=1000):
-        model = cls.from_name(model_name, override_params={'num_classes': num_classes})
-        load_pretrained_weights(model, model_name, load_fc=(num_classes == 1000))
-        return model
-
-    @classmethod
-    def get_image_size(cls, model_name):
-        cls._check_model_name_is_valid(model_name)
-        _, res, _ = vgg_params(model_name)
-        return res
-
-    @classmethod
-    def _check_model_name_is_valid(cls, model_name):
-        """ Validates model name. None that pretrained weights are only available for
-        the first four models (vgg{i} for i in 11,13,16,19) at the moment. """
-        valid_models = ['vgg' + str(i) for i in ["11", "11_bn",
-                                                 "13", "13_bn",
-                                                 "16", "16_bn",
-                                                 "19", "19_bn"]]
-        if model_name not in valid_models:
-            raise ValueError('model_name should be one of: ' + ', '.join(valid_models))
-
 
 def make_layers(configure, batch_norm):
     layers = []

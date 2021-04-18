@@ -7,7 +7,6 @@ import torch.utils.data as data
 import torchvision.transforms as transforms
 import torchvision.models as models
 from torch import Tensor
-from Livelossplot import livelossplot
 
 import torch.optim as optim
 import matplotlib.pyplot as plt
@@ -59,7 +58,7 @@ print(net)
 def train(train_opts):
     loss_func = nn.CrossEntropyLoss()
     learning_rate = train_opts["learning_rate"]
-    liveloss = livelossplot.PlotLosses()
+    # liveloss = livelossplot.PlotLosses()
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
         logs = {}
         for phase in ["train", "val"]:
@@ -120,8 +119,10 @@ def train(train_opts):
             logs[prefix + 'log loss'] = epoch_loss.item()
             logs[prefix + 'accuracy'] = epoch_acc.item()
 
-        liveloss.update(logs)
-        liveloss.send()
+        # liveloss.update(logs)
+        # liveloss.send()
+        print("epoch:" + str(epoch))
+        print(logs)
     print('Finished Training')
 
 
