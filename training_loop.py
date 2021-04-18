@@ -20,7 +20,7 @@ def train(train_opts, net, device):
 
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
         log = {}
-        for phase in ["val", "train"]:
+        for phase in ["train", "val"]:
 
             if phase == 'train':
                 net.train()

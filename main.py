@@ -1,7 +1,7 @@
 import torch
 from DataLoaders.CIFAR100 import CIFAR100
 
-from models.Resnet_small import resnet18, resnet34
+from models.Resnet_small import resnet18, resnet34, resnet50, resnet101
 from models.InceptionV3 import inception_v3
 from models.Stupid import StupidNet
 from models.vggnet_small import VGG
@@ -14,7 +14,7 @@ def main():
 
     image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size)
 
-    net = resnet34(num_classes)
+    net = resnet101(num_classes=num_classes)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = net.to(device)
     print(net)
