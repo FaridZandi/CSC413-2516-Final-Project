@@ -1,13 +1,13 @@
 import torch
-from DataLoaders.CIFAR10 import CIFAR10
+from DataLoaders.CIFAR100 import CIFAR100
 from models.Resnet_small import resnet18
 from training_loop import train
 
 batch_size = 50
 
-image_datasets, dataloaders, dataset_sizes = CIFAR10(batch_size)
+image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size)
 
-net = resnet18()
+net = resnet18(num_classes)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 net = net.to(device)
 

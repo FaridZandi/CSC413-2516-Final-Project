@@ -81,7 +81,6 @@ class ResNet(nn.Module):
         if norm_layer is None:
             norm_layer = nn.BatchNorm2d
         self._norm_layer = norm_layer
-
         self.inplanes = 64
         self.dilation = 1
         if replace_stride_with_dilation is None:
@@ -172,21 +171,23 @@ class ResNet(nn.Module):
 
 def _resnet(
         arch: str,
+        num_classes: int,
         block: Type[BasicBlock],
         layers: List[int],
         progress: bool,
         **kwargs: Any
 ) -> ResNet:
-    model = ResNet(block, layers, **kwargs)
+    model = ResNet(block, layers, num_classes, **kwargs)
     return model
 
 
-def resnet18(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> ResNet:
+def resnet18(num_classes: int, pretrained: bool = False,  progress: bool = True, **kwargs: Any) -> ResNet:
     r"""ResNet-18 model from
     `"Deep Residual Learning for Image Recognition" <https://arxiv.org/pdf/1512.03385.pdf>`_.
     Args:
         pretrained (bool): If True, returns a model pre-trained on ImageNet
         progress (bool): If True, displays a progress bar of the download to stderr
+        :param num_classes: number of classes
     """
-    return _resnet('resnet18', BasicBlock, [2, 2, 2, 2], progress,
+    return _resnet('resnet18', num_classes, BasicBlock, [2, 2, 2, 2], progress,
                    **kwargs)
