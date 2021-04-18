@@ -20,7 +20,7 @@ def train(train_opts, net, device):
 
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
         log = {}
-        for phase in ["train", "val"]:
+        for phase in ["val", "train"]:
 
             if phase == 'train':
                 net.train()
@@ -36,10 +36,13 @@ def train(train_opts, net, device):
             for i, data in enumerate(dataloaders[phase], 0):
                 inputs, labels = data[0].to(device), data[1].to(device)
 
-                outputs = net(inputs)
-                loss = loss_func(outputs, labels)
-
-                if phase == 'train':
+                if phase == "val":
+                    with torch.no_grad():
+                        outputs = net(inputs)
+                        loss = loss_func(outputs, labels)
+                else:
+                    outputs = net(inputs)
+                    loss = loss_func(outputs, labels)
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
