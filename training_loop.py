@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
 
 
 def train(train_opts, net, device):
@@ -13,8 +14,12 @@ def train(train_opts, net, device):
     loss_func = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 
+    best_val_loss = np.inf
+    best_val_accuracy = np.inf
+    logs = []
+
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
-        logs = {}
+        log = {}
         for phase in ["train", "val"]:
 
             if phase == 'train':
@@ -38,7 +43,6 @@ def train(train_opts, net, device):
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
-                    # learning_rate = learning_rate * 0.9
 
                 _, preds = torch.max(outputs, 1)
                 loss = loss.detach() * inputs.size(0)
@@ -48,7 +52,6 @@ def train(train_opts, net, device):
                 epoch_corrects += corrects
                 running_corrects += corrects
                 epoch_count += inputs.size(0)
-                # print statistics
 
                 if i % multi_batch_count == multi_batch_count - 1:
                     print("[{}/{}] {}: running_loss: {}, running_corrects:{}".format(
@@ -67,12 +70,16 @@ def train(train_opts, net, device):
             prefix = ''
             if phase == 'val':
                 prefix = 'val_'
+                if epoch_acc < best_val_accuracy:
+                    best_val_accuracy = epoch_acc
+                if epoch_loss < best_val_loss:
+                    best_val_loss = epoch_loss
 
-            logs[prefix + 'log loss'] = epoch_loss.item()
-            logs[prefix + 'accuracy'] = epoch_acc.item()
+            log[prefix + 'log loss'] = epoch_loss.item()
+            log[prefix + 'accuracy'] = epoch_acc.item()
 
-        # liveloss.update(logs)
-        # liveloss.send()
         print("epoch:" + str(epoch))
-        print(logs)
-    print('Finished Training')
+        print(log)
+        logs.append(log)
+
+    return best_val_accuracy, best_val_loss, logs
