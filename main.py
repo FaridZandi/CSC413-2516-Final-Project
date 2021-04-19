@@ -14,22 +14,22 @@ from training_loop import train
 
 def make_config():
     config = []
-    config += [("B", 64)]
-    config += [("R", 64)] * 4
-    config += [("M", 2)]
-    config += [("B", 128)]
-    config += [("R", 128)] * 8
-    config += [("M", 2)]
-    config += [("B", 256)]
-    config += [("R", 256)] * 8
-    config += [("M", 2)]
+    config += [("Conv1x1", 64)]
+    config += [("Res", 64)] * 4
+    config += [("Max", 2)]
+    config += [("Conv1x1", 128)]
+    config += [("Res", 128)] * 8
+    config += [("Max", 2)]
+    config += [("Conv1x1", 256)]
+    config += [("Res", 256)] * 8
+    config += [("Max", 2)]
     return config
 
 
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 64)
+    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 32)
 
     config = make_config()
     net = CombModel(num_classes=num_classes, config_list=config)

@@ -20,25 +20,25 @@ import warnings
 from typing import Callable, Any, Optional, Tuple, List
 from collections import namedtuple
 
-configurations = {
-    1: [("B", 64), ("B", 64),
-        ("M", 2),
-        ("B", 128), ("B", 128), ("B", 128),
-        ("M", 2),
-        ("B", 256), ("B", 256), ("B", 256),
-        ("M", 2)],  # 45 percent
-    2: [("B", 64), ("R", 64),
-        ("M", 2),
-        ("B", 128), ("R", 128), ("R", 128),
-        ("M", 2),
-        ("B", 256), ("R", 256), ("R", 256),
-        ("M", 2)],  # 46 percent
-    3: [("B", 64), ("B", 64),
-        ("M", 2),
-        ("I", 128), ("I", 128), ("I", 128),
-        ("M", 2),
-        ("I", 256), ("I", 256), ("I", 256),
-        ("M", 2)],
+configuResations = {
+    1: [("Basic", 64), ("Basic", 64),
+        ("Max", 2),
+        ("Basic", 128), ("Basic", 128), ("Basic", 128),
+        ("Max", 2),
+        ("Basic", 256), ("Basic", 256), ("Basic", 256),
+        ("Max", 2)],  # 45 percent
+    2: [("Basic", 64), ("Res", 64),
+        ("Max", 2),
+        ("Basic", 128), ("Res", 128), ("Res", 128),
+        ("Max", 2),
+        ("Basic", 256), ("Res", 256), ("Res", 256),
+        ("Max", 2)],  # 46 percent
+    3: [("Basic", 64), ("Basic", 64),
+        ("Max", 2),
+        ("Incep", 128), ("Incep", 128), ("Incep", 128),
+        ("Max", 2),
+        ("Incep", 256), ("Incep", 256), ("Incep", 256),
+        ("Max", 2)],
 }
 
 
@@ -227,15 +227,18 @@ def make_layers(configure, batch_norm):
     in_channels = 3
     for type, param in configure:
         print(type, param)
-        if type == 'M':
+        if type == 'Max':
             layers += [nn.MaxPool2d(kernel_size=param, stride=param)]
-        elif type == "B":
+        elif type == "Basic":
             layers += [BasicBlock(in_channels, param)]
             in_channels = param
-        elif type == "R":
+        elif type == "Conv1x1":
+            layers += [conv1x1(in_channels, param)]
+            in_channels = param
+        elif type == "Res":
             layers += [ResNetBasicBlock(in_channels, param)]
             in_channels = param
-        elif type == "I":
+        elif type == "Incep":
             layers += [InceptionA(in_channels, param)]
             in_channels = param
     return nn.Sequential(*layers)
