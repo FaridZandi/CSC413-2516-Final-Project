@@ -69,13 +69,13 @@ class Inception3(nn.Module):
         self.maxpool1 = nn.MaxPool2d(kernel_size=3, stride=2)
         self.Conv2d_3b_1x1 = conv_block(64, 80, kernel_size=1)
         self.Conv2d_4a_3x3 = conv_block(80, 192, kernel_size=3, padding=1)
+        self.Conv2d_4b_3x3 = conv_block(192, 192, kernel_size=3, padding=1)
+        self.Conv2d_4c_3x3 = conv_block(192, 192, kernel_size=3, padding=1)
+        self.Conv2d_4d_3x3 = conv_block(192, 192, kernel_size=3, padding=1)
         self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=2)
         self.Mixed_5b = inception_a(192, pool_features=32)
         self.Mixed_5c = inception_a(256, pool_features=64)
         self.Mixed_5d = inception_a(288, pool_features=64)
-        self.Mixed_5e = inception_a(288, pool_features=64)
-        self.Mixed_5f = inception_a(288, pool_features=64)
-        self.Mixed_5g = inception_a(288, pool_features=64)
         self.AuxLogits: Optional[nn.Module] = None
         if aux_logits:
             self.AuxLogits = inception_aux(288, num_classes)
@@ -125,12 +125,6 @@ class Inception3(nn.Module):
         x = self.Mixed_5c(x)
         # N x 288 x 8 x 8
         x = self.Mixed_5d(x)
-        # N x 288 x 8 x 8
-        x = self.Mixed_5e(x)
-        # N x 288 x 8 x 8
-        x = self.Mixed_5f(x)
-        # N x 288 x 8 x 8
-        x = self.Mixed_5g(x)
         # N x 288 x 8 x 8
         aux: Optional[Tensor] = None
         if self.AuxLogits is not None:
