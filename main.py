@@ -15,7 +15,7 @@ from training_loop import train
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 32)
+    image_datasets, dataloaders, dataset_sizes, num_classes = TinyImageNet(batch_size, 64)
 
     # net = resnet101(num_classes=num_classes)
     net = CombModel(num_classes=num_classes, configuration=3)
