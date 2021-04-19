@@ -14,7 +14,7 @@ from training_loop import train
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = TinyImageNet(batch_size)
+    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR10(batch_size)
 
     net = resnet101(num_classes=num_classes)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
