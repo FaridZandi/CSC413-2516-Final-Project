@@ -22,6 +22,7 @@ def make_config():
     config += [("M", 2)]
     config += [("B", 256)]
     config += [("R", 256)] * 8
+    config += [("M", 2)]
     return config
 
 
