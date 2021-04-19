@@ -5,7 +5,9 @@ from torch import nn, Tensor
 import torch.nn.functional as F
 from typing import Callable, Any, Optional, Tuple, List
 
+
 __all__ = ['Inception3', 'inception_v3', 'InceptionOutputs', '_InceptionOutputs']
+
 
 InceptionOutputs = namedtuple('InceptionOutputs', ['logits', 'aux_logits'])
 InceptionOutputs.__annotations__ = {'logits': Tensor, 'aux_logits': Optional[Tensor]}
@@ -28,19 +30,18 @@ def inception_v3(progress: bool = True, **kwargs: Any) -> "Inception3":
         transform_input (bool): If True, preprocesses the input according to the method with which it
             was trained on ImageNet. Default: *False*
     """
-
     return Inception3(**kwargs)
 
 
 class Inception3(nn.Module):
 
     def __init__(
-            self,
-            num_classes: int = 200,
-            aux_logits: bool = True,
-            transform_input: bool = False,
-            inception_blocks: Optional[List[Callable[..., nn.Module]]] = None,
-            init_weights: Optional[bool] = None
+        self,
+        num_classes: int = 1000,
+        aux_logits: bool = False,
+        transform_input: bool = False,
+        inception_blocks: Optional[List[Callable[..., nn.Module]]] = None,
+        init_weights: Optional[bool] = None
     ) -> None:
         super(Inception3, self).__init__()
         if inception_blocks is None:
@@ -53,7 +54,6 @@ class Inception3(nn.Module):
                           'torchvision. If you wish to keep the old behavior (which leads to long initialization times'
                           ' due to scipy/scipy#11299), please set init_weights=True.', FutureWarning)
             init_weights = True
-
         assert len(inception_blocks) == 7
         conv_block = inception_blocks[0]
         inception_a = inception_blocks[1]
@@ -65,8 +65,8 @@ class Inception3(nn.Module):
 
         self.aux_logits = aux_logits
         self.transform_input = transform_input
-        self.Conv2d_1a_3x3 = conv_block(3, 32, kernel_size=3, padding=1)
-        self.Conv2d_2a_3x3 = conv_block(32, 32, kernel_size=3, padding=1)
+        self.Conv2d_1a_3x3 = conv_block(3, 32, kernel_size=3, stride=2)
+        self.Conv2d_2a_3x3 = conv_block(32, 32, kernel_size=3)
         self.Conv2d_2b_3x3 = conv_block(32, 64, kernel_size=3, padding=1)
         self.maxpool1 = nn.MaxPool2d(kernel_size=3, stride=2)
         self.Conv2d_3b_1x1 = conv_block(64, 80, kernel_size=1)
@@ -76,12 +76,19 @@ class Inception3(nn.Module):
         self.Mixed_5c = inception_a(256, pool_features=64)
         self.Mixed_5d = inception_a(288, pool_features=64)
         self.Mixed_6a = inception_b(288)
+        self.Mixed_6b = inception_c(768, channels_7x7=128)
+        self.Mixed_6c = inception_c(768, channels_7x7=160)
+        self.Mixed_6d = inception_c(768, channels_7x7=160)
+        self.Mixed_6e = inception_c(768, channels_7x7=192)
         self.AuxLogits: Optional[nn.Module] = None
         if aux_logits:
             self.AuxLogits = inception_aux(768, num_classes)
+        self.Mixed_7a = inception_d(768)
+        self.Mixed_7b = inception_e(1280)
+        self.Mixed_7c = inception_e(2048)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout()
-        self.fc = nn.Linear(768, num_classes)
+        self.fc = nn.Linear(2048, num_classes)
         if init_weights:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
@@ -105,42 +112,57 @@ class Inception3(nn.Module):
         return x
 
     def _forward(self, x: Tensor) -> Tuple[Tensor, Optional[Tensor]]:
-        # N x 3 x 64 x 64
+        # N x 3 x 299 x 299
         x = self.Conv2d_1a_3x3(x)
-        # N x 32 x 64 x 64
+        # N x 32 x 149 x 149
         x = self.Conv2d_2a_3x3(x)
-        # N x 32 x 64 x 64
+        # N x 32 x 147 x 147
         x = self.Conv2d_2b_3x3(x)
-        # N x 64 x 64 x 64
+        # N x 64 x 147 x 147
         x = self.maxpool1(x)
-        # N x 64 x 32 x 32
+        # N x 64 x 73 x 73
         x = self.Conv2d_3b_1x1(x)
-        # N x 80 x 32 x 32
+        # N x 80 x 73 x 73
         x = self.Conv2d_4a_3x3(x)
-        # N x 192 x 30 x 30
+        # N x 192 x 71 x 71
         x = self.maxpool2(x)
-        # N x 192 x 15 x 15
+        # N x 192 x 35 x 35
         x = self.Mixed_5b(x)
-        # N x 256 x 15 x 15
+        # N x 256 x 35 x 35
         x = self.Mixed_5c(x)
-        # N x 288 x 15 x 15
+        # N x 288 x 35 x 35
         x = self.Mixed_5d(x)
-        # N x 288 x 15 x 15
+        # N x 288 x 35 x 35
         x = self.Mixed_6a(x)
-        # N x 768 x 7 x 7
+        # N x 768 x 17 x 17
+        x = self.Mixed_6b(x)
+        # N x 768 x 17 x 17
+        x = self.Mixed_6c(x)
+        # N x 768 x 17 x 17
+        x = self.Mixed_6d(x)
+        # N x 768 x 17 x 17
+        x = self.Mixed_6e(x)
+        # N x 768 x 17 x 17
         aux: Optional[Tensor] = None
         if self.AuxLogits is not None:
             if self.training:
                 aux = self.AuxLogits(x)
+        # N x 768 x 17 x 17
+        x = self.Mixed_7a(x)
+        # N x 1280 x 8 x 8
+        x = self.Mixed_7b(x)
+        # N x 2048 x 8 x 8
+        x = self.Mixed_7c(x)
+        # N x 2048 x 8 x 8
         # Adaptive average pooling
         x = self.avgpool(x)
-        # N x 768 x 1 x 1
+        # N x 2048 x 1 x 1
         x = self.dropout(x)
-        # N x 768 x 1 x 1
+        # N x 2048 x 1 x 1
         x = torch.flatten(x, 1)
-        # N x 768
+        # N x 2048
         x = self.fc(x)
-        # N x 200 (num_classes)
+        # N x 1000 (num_classes)
         return x, aux
 
     @torch.jit.unused
@@ -165,10 +187,10 @@ class Inception3(nn.Module):
 class InceptionA(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            pool_features: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        pool_features: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionA, self).__init__()
         if conv_block is None:
@@ -208,9 +230,9 @@ class InceptionA(nn.Module):
 class InceptionB(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionB, self).__init__()
         if conv_block is None:
@@ -241,10 +263,10 @@ class InceptionB(nn.Module):
 class InceptionC(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            channels_7x7: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        channels_7x7: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionC, self).__init__()
         if conv_block is None:
@@ -291,9 +313,9 @@ class InceptionC(nn.Module):
 class InceptionD(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionD, self).__init__()
         if conv_block is None:
@@ -327,9 +349,9 @@ class InceptionD(nn.Module):
 class InceptionE(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionE, self).__init__()
         if conv_block is None:
@@ -379,10 +401,10 @@ class InceptionE(nn.Module):
 class InceptionAux(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            num_classes: int,
-            conv_block: Optional[Callable[..., nn.Module]] = None
+        self,
+        in_channels: int,
+        num_classes: int,
+        conv_block: Optional[Callable[..., nn.Module]] = None
     ) -> None:
         super(InceptionAux, self).__init__()
         if conv_block is None:
@@ -414,10 +436,10 @@ class InceptionAux(nn.Module):
 class BasicConv2d(nn.Module):
 
     def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            **kwargs: Any
+        self,
+        in_channels: int,
+        out_channels: int,
+        **kwargs: Any
     ) -> None:
         super(BasicConv2d, self).__init__()
         self.conv = nn.Conv2d(in_channels, out_channels, bias=False, **kwargs)
@@ -427,4 +449,3 @@ class BasicConv2d(nn.Module):
         x = self.conv(x)
         x = self.bn(x)
         return F.relu(x, inplace=True)
-

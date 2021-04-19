@@ -4,9 +4,10 @@ import torchvision
 import torchvision.transforms as transforms
 
 
-def CIFAR100(batch_size=50):
+def CIFAR100(batch_size=50, output_size=32):
     transform = transforms.Compose(
-        [transforms.ToTensor(),
+        [transforms.Resize(output_size),
+         transforms.ToTensor(),
          transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     image_datasets = {}

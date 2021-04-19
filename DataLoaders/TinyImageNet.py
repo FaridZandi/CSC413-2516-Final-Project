@@ -5,7 +5,7 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
 
-def TinyImageNet(batch_size=50):
+def TinyImageNet(batch_size=50, output_size=64):
     data_dir = 'tiny-imagenet-200/'
     num_workers = {'train': 2, 'val': 0, 'test': 0}
     data_transforms = {

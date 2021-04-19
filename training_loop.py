@@ -4,7 +4,7 @@ import torch.optim as optim
 import numpy as np
 
 
-def train(train_opts, net, device):
+def train(train_opts, net, device, aux=False):
     learning_rate = train_opts["learning_rate"]
     batch_size = train_opts["batch_size"]
     multi_batch_count = train_opts["multi_batch_count"]
@@ -38,10 +38,16 @@ def train(train_opts, net, device):
 
                 if phase == "val":
                     with torch.no_grad():
-                        outputs = net(inputs)
+                        if aux:
+                            outputs, _ = net(inputs)
+                        else:
+                            outputs = net(inputs)
                         loss = loss_func(outputs, labels)
                 else:
-                    outputs = net(inputs)
+                    if aux:
+                        outputs, _ = net(inputs)
+                    else:
+                        outputs = net(inputs)
                     loss = loss_func(outputs, labels)
                     optimizer.zero_grad()
                     loss.backward()
