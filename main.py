@@ -12,13 +12,26 @@ from models.vggnet_small import VGG
 from training_loop import train
 
 
+def make_config():
+    config = []
+    config += [("B", 64)]
+    config += [("R", 64)] * 4
+    config += [("M", 2)]
+    config += [("B", 128)]
+    config += [("R", 128)] * 8
+    config += [("M", 2)]
+    config += [("B", 256)]
+    config += [("R", 256)] * 8
+    return config
+
+
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = TinyImageNet(batch_size, 64)
+    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 64)
 
-    # net = resnet101(num_classes=num_classes)
-    net = CombModel(num_classes=num_classes, configuration=3)
+    config = make_config()
+    net = CombModel(num_classes=num_classes, config_list=config)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = net.to(device)

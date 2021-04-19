@@ -20,7 +20,7 @@ import warnings
 from typing import Callable, Any, Optional, Tuple, List
 from collections import namedtuple
 
-configures = {
+configurations = {
     1: [("B", 64), ("B", 64),
         ("M", 2),
         ("B", 128), ("B", 128), ("B", 128),
@@ -182,10 +182,15 @@ class InceptionA(nn.Module):
 
 
 class CombModel(nn.Module):
-    def __init__(self, num_classes, configuration):
+    def __init__(self, num_classes, config_num = 1, config_list=None):
         super(CombModel, self).__init__()
 
-        self.features = make_layers(configures[configuration], True)
+        if config_list is not None:
+            config = config_list
+        else:
+            config = configurations[config_num]
+
+        self.features = make_layers(config, True)
         self.avgpool = nn.AdaptiveAvgPool2d((4, 4))
         self.classifier = nn.Sequential(
             nn.Linear(256 * 4 * 4, 512),
