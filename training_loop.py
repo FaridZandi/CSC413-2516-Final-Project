@@ -84,10 +84,10 @@ def train(train_opts, net, device, aux=False):
                 prefix = 'val_'
                 if epoch_acc < best_val_accuracy:
                     best_val_accuracy = epoch_acc
-                    no_progress_epochs = 0
 
                 if epoch_loss < best_val_loss:
                     best_val_loss = epoch_loss
+                    no_progress_epochs = 0
                 else:
                     no_progress_epochs += 1
                     print("no_progress_epochs: ", no_progress_epochs)
