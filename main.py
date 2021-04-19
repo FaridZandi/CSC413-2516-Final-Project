@@ -4,7 +4,8 @@ from DataLoaders.CIFAR100 import CIFAR100
 from DataLoaders.TinyImageNet import TinyImageNet
 
 from models.Resnet_small import resnet18, resnet34, resnet50, resnet101
-from models.InceptionV3_small import inception_v3
+# from models.InceptionV3_small import inception_v3
+from models.InceptionV3_narrower_small import inception_v3
 from models.Stupid import StupidNet
 from models.vggnet_small import VGG
 
@@ -30,7 +31,7 @@ def main():
         "multi_batch_count": 100,
         "dataloaders": dataloaders,
         "dataset_sizes": dataset_sizes,
-        "no_progress_epoch_limit": 5
+        "no_progress_epoch_limit": 10
     }
 
     best_val_accuracy, best_val_loss, logs = train(train_opts, net, device, aux=False)

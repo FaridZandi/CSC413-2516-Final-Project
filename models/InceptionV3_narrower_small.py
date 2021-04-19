@@ -69,19 +69,16 @@ class Inception3(nn.Module):
         self.maxpool1 = nn.MaxPool2d(kernel_size=3, stride=2)
         self.Conv2d_3b_1x1 = conv_block(32, 40, kernel_size=1)
         self.Conv2d_4a_3x3 = conv_block(40, 96, kernel_size=3, padding=1)
-        self.Conv2d_4b_3x3 = conv_block(96, 96, kernel_size=3, padding=1)
-        self.Conv2d_4c_3x3 = conv_block(96, 96, kernel_size=3, padding=1)
-        self.Conv2d_4d_3x3 = conv_block(96, 96, kernel_size=3, padding=1)
         self.maxpool2 = nn.MaxPool2d(kernel_size=3, stride=2)
-        self.Mixed_5b = inception_a(192, pool_features=32)
-        self.Mixed_5c = inception_a(256, pool_features=64)
-        self.Mixed_5d = inception_a(288, pool_features=64)
+        self.Mixed_5b = inception_a(96, pool_features=16)
+        self.Mixed_5c = inception_a(128, pool_features=32)
+        self.Mixed_5d = inception_a(144, pool_features=32)
         self.AuxLogits: Optional[nn.Module] = None
         if aux_logits:
-            self.AuxLogits = inception_aux(288, num_classes)
+            self.AuxLogits = inception_aux(144, num_classes)
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout()
-        self.fc = nn.Linear(288, num_classes)
+        self.fc = nn.Linear(144, num_classes)
         if init_weights:
             for m in self.modules():
                 if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
@@ -117,12 +114,6 @@ class Inception3(nn.Module):
         x = self.Conv2d_3b_1x1(x)
         # N x 80 x 16 x 16
         x = self.Conv2d_4a_3x3(x)
-        # N x 192 x 16 x 16
-        x = self.Conv2d_4b_3x3(x)
-        # N x 192 x 16 x 16
-        x = self.Conv2d_4c_3x3(x)
-        # N x 192 x 16 x 16
-        x = self.Conv2d_4d_3x3(x)
         # N x 192 x 16 x 16
         x = self.maxpool2(x)
         # N x 192 x 8 x 8
@@ -177,14 +168,14 @@ class InceptionA(nn.Module):
         super(InceptionA, self).__init__()
         if conv_block is None:
             conv_block = BasicConv2d
-        self.branch1x1 = conv_block(in_channels, 64, kernel_size=1)
+        self.branch1x1 = conv_block(in_channels, 32, kernel_size=1)
 
-        self.branch5x5_1 = conv_block(in_channels, 48, kernel_size=1)
-        self.branch5x5_2 = conv_block(48, 64, kernel_size=5, padding=2)
+        self.branch5x5_1 = conv_block(in_channels, 24, kernel_size=1)
+        self.branch5x5_2 = conv_block(24, 32, kernel_size=5, padding=2)
 
-        self.branch3x3dbl_1 = conv_block(in_channels, 64, kernel_size=1)
-        self.branch3x3dbl_2 = conv_block(64, 96, kernel_size=3, padding=1)
-        self.branch3x3dbl_3 = conv_block(96, 96, kernel_size=3, padding=1)
+        self.branch3x3dbl_1 = conv_block(in_channels, 32, kernel_size=1)
+        self.branch3x3dbl_2 = conv_block(32, 48, kernel_size=3, padding=1)
+        self.branch3x3dbl_3 = conv_block(48, 48, kernel_size=3, padding=1)
 
         self.branch_pool = conv_block(in_channels, pool_features, kernel_size=1)
 
