@@ -18,7 +18,7 @@ def main():
     image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 32)
 
     # net = resnet101(num_classes=num_classes)
-    net = CombModel(num_classes=num_classes, configuration=1)
+    net = CombModel(num_classes=num_classes, configuration=2)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = net.to(device)
