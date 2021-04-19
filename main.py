@@ -1,5 +1,7 @@
 import torch
+from DataLoaders.CIFAR10 import CIFAR10
 from DataLoaders.CIFAR100 import CIFAR100
+from DataLoaders.TinyImageNet import TinyImageNet
 
 from models.Resnet_small import resnet18, resnet34, resnet50, resnet101
 from models.InceptionV3 import inception_v3
@@ -12,7 +14,7 @@ from training_loop import train
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size)
+    image_datasets, dataloaders, dataset_sizes, num_classes = TinyImageNet(batch_size)
 
     net = resnet101(num_classes=num_classes)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -20,8 +22,8 @@ def main():
     print(net)
 
     train_opts = {
-        "epochs": 50,
-        "learning_rate": 0.001,
+        "epochs": 100,
+        "learning_rate": 0.0001,
         "batch_size": batch_size,
         "multi_batch_count": 100,
         "dataloaders": dataloaders,
