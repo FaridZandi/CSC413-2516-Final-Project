@@ -7,7 +7,7 @@ import torchvision.datasets as datasets
 
 def TinyImageNet(batch_size=50, output_size=64):
     data_dir = 'tiny-imagenet-200/'
-    num_workers = {'train': 2, 'val': 0, 'test': 0}
+    num_workers = {'train': 4, 'val': 1, 'test': 0}
     data_transforms = {
         'train': transforms.Compose([
             transforms.ToTensor(),
@@ -19,6 +19,7 @@ def TinyImageNet(batch_size=50, output_size=64):
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
     }
+
 
     image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x), data_transforms[x])
                       for x in ['train', 'val', 'test']}
