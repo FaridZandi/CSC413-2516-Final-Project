@@ -18,6 +18,9 @@ def train(train_opts, net, device, aux=False):
     best_val_accuracy = np.inf
     logs = []
 
+    no_progress_epochs = 0
+    no_progress_epoch_limit = train_opts["no_progress_epoch_limit"]
+
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
         log = {}
         for phase in ["train", "val"]:
@@ -81,6 +84,11 @@ def train(train_opts, net, device, aux=False):
                 prefix = 'val_'
                 if epoch_acc < best_val_accuracy:
                     best_val_accuracy = epoch_acc
+                    no_progress_epochs = 0
+                else:
+                    no_progress_epochs += 1
+                    print("no_progress_epochs: ", no_progress_epochs)
+
                 if epoch_loss < best_val_loss:
                     best_val_loss = epoch_loss
 
@@ -90,5 +98,8 @@ def train(train_opts, net, device, aux=False):
         print("epoch:" + str(epoch))
         print(log)
         logs.append(log)
+
+        if no_progress_epochs > no_progress_epoch_limit:
+            break
 
     return best_val_accuracy, best_val_loss, logs

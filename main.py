@@ -30,10 +30,13 @@ def main():
         "multi_batch_count": 100,
         "dataloaders": dataloaders,
         "dataset_sizes": dataset_sizes,
+        "no_progress_epoch_limit": 5
     }
 
     best_val_accuracy, best_val_loss, logs = train(train_opts, net, device, aux=False)
 
+    for log in logs:
+        print(log)
     print(best_val_accuracy, best_val_loss)
 
 
