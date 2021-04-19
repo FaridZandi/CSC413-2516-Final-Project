@@ -15,7 +15,7 @@ def train(train_opts, net, device, aux=False):
     optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 
     best_val_loss = 100000000000
-    best_val_accuracy = 100000000000
+    best_val_accuracy = 0
     logs = []
 
     no_progress_epochs = 0
@@ -82,7 +82,7 @@ def train(train_opts, net, device, aux=False):
             prefix = ''
             if phase == 'val':
                 prefix = 'val_'
-                if epoch_acc < best_val_accuracy:
+                if epoch_acc > best_val_accuracy:
                     best_val_accuracy = epoch_acc
 
                 if epoch_loss < best_val_loss:
@@ -92,7 +92,7 @@ def train(train_opts, net, device, aux=False):
                     no_progress_epochs += 1
                     print("no_progress_epochs: ", no_progress_epochs)
 
-            log[prefix + 'log loss'] = epoch_loss.item()
+            log[prefix + 'loss'] = epoch_loss.item()
             log[prefix + 'accuracy'] = epoch_acc.item()
 
         print("epoch:" + str(epoch))

@@ -3,9 +3,9 @@ from DataLoaders.CIFAR10 import CIFAR10
 from DataLoaders.CIFAR100 import CIFAR100
 from DataLoaders.TinyImageNet import TinyImageNet
 
+from models.CombModel import CombModel
 from models.Resnet_small import resnet18, resnet34, resnet50, resnet101
-# from models.InceptionV3_small import inception_v3
-from models.InceptionV3_narrower_small import inception_v3
+from models.InceptionV3_small import inception_v3
 from models.Stupid import StupidNet
 from models.vggnet_small import VGG
 
@@ -18,7 +18,7 @@ def main():
     image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 32)
 
     # net = resnet101(num_classes=num_classes)
-    net = inception_v3(num_classes=num_classes)
+    net = CombModel(num_classes=num_classes, configuration=1)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = net.to(device)
