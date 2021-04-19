@@ -118,6 +118,12 @@ class Inception3(nn.Module):
         # N x 80 x 16 x 16
         x = self.Conv2d_4a_3x3(x)
         # N x 192 x 16 x 16
+        x = self.Conv2d_4b_3x3(x)
+        # N x 192 x 16 x 16
+        x = self.Conv2d_4c_3x3(x)
+        # N x 192 x 16 x 16
+        x = self.Conv2d_4d_3x3(x)
+        # N x 192 x 16 x 16
         x = self.maxpool2(x)
         # N x 192 x 8 x 8
         x = self.Mixed_5b(x)
