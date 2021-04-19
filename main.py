@@ -14,7 +14,7 @@ from training_loop import train
 def main():
     batch_size = 50
 
-    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 299)
+    image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR100(batch_size, 32)
 
     # net = resnet101(num_classes=num_classes)
     net = inception_v3(num_classes=num_classes)
