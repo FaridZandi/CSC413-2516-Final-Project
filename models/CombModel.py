@@ -148,7 +148,7 @@ class InceptionA(nn.Module):
         super(InceptionA, self).__init__()
         conv_block = BasicConv2d
 
-        path_out_planes = out_planes / 4
+        path_out_planes = int(out_planes / 4)
         self.branch1x1 = conv_block(in_planes, path_out_planes, kernel_size=1)
 
         self.branch5x5_1 = conv_block(in_planes, path_out_planes, kernel_size=1)
