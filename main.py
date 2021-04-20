@@ -43,7 +43,7 @@ def main():
         "multi_batch_count": 10,
         "dataloaders": dataloaders,
         "dataset_sizes": dataset_sizes,
-        "no_progress_epoch_limit": 50
+        "no_progress_epoch_limit": 5
     }
 
     test_accuracy, test_loss, logs = train(train_opts, net, device, verbose=True, show_log=True, aux=False)
