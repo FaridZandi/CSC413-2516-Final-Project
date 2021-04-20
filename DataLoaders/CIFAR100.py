@@ -25,7 +25,7 @@ def CIFAR100(batch_size=200, output_size=32):
                                                        shuffle=True, num_workers=2)
     dataloaders['val'] = torch.utils.data.DataLoader(image_datasets['val'], batch_size=batch_size,
                                                      shuffle=True, num_workers=2)
-    dataloaders['test'] = torch.utils.data.DataLoader(image_datasets['val'], batch_size=batch_size,
+    dataloaders['test'] = torch.utils.data.DataLoader(image_datasets['test'], batch_size=batch_size,
                                                       shuffle=False, num_workers=2)
 
     dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val', 'test']}
