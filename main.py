@@ -15,13 +15,13 @@ from training_loop import train
 def make_config():
     config = []
     config += [("Conv1x1", 64)]
-    config += [("Res", 64)] * 1
+    config += [("Incep", 64)] * 1
     config += [("Max", 2)]
     config += [("Conv1x1", 128)]
-    config += [("Res", 128)] * 1
+    config += [("Incep", 128)] * 1
     config += [("Max", 2)]
     config += [("Conv1x1", 256)]
-    config += [("Res", 256)] * 1
+    config += [("Incep", 256)] * 1
     config += [("Max", 2)]
     return config
 
@@ -49,11 +49,11 @@ def main():
         "no_progress_epoch_limit": 5
     }
 
-    best_val_accuracy, best_val_loss, logs = train(train_opts, net, device, aux=False)
+    test_accuracy, test_loss, logs = train(train_opts, net, device, aux=False)
 
     for log in logs:
         print(log)
-    print(best_val_accuracy, best_val_loss)
+    print("test accuracy: {}\n test_loss: {}".format(test_accuracy, test_loss))
 
 
 if __name__ == "__main__":

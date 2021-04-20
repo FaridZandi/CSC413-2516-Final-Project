@@ -4,8 +4,9 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 
+PATH = './net.pth'
 
-def train(train_opts, net, device, aux=False):
+def train(train_opts, net, device, verbose=True, aux=False):
     learning_rate = train_opts["learning_rate"]
     batch_size = train_opts["batch_size"]
     multi_batch_count = train_opts["multi_batch_count"]
@@ -69,13 +70,15 @@ def train(train_opts, net, device, aux=False):
                 running_corrects += corrects
                 epoch_count += inputs.size(0)
 
+
                 if i % multi_batch_count == multi_batch_count - 1:
-                    print("[{}/{}] {}: running_loss: {}, running_corrects:{}".format(
-                        (i + 1) * batch_size,
-                        dataset_sizes[phase],
-                        phase,
-                        running_loss / multi_batch_count / batch_size,
-                        running_corrects / multi_batch_count / batch_size))
+                    if verbose:
+                        print("[{}/{}] {}: running_loss: {}, running_corrects:{}".format(
+                            (i + 1) * batch_size,
+                            dataset_sizes[phase],
+                            phase,
+                            running_loss / multi_batch_count / batch_size,
+                            running_corrects / multi_batch_count / batch_size))
 
                     running_loss = 0.0
                     running_corrects = 0
@@ -86,12 +89,13 @@ def train(train_opts, net, device, aux=False):
             prefix = ''
             if phase == 'val':
                 prefix = 'val_'
-                if epoch_acc > best_val_accuracy:
-                    best_val_accuracy = epoch_acc
 
                 if epoch_loss < best_val_loss:
                     best_val_loss = epoch_loss
+                    best_val_accuracy = epoch_acc
                     no_progress_epochs = 0
+                    torch.save(net.state_dict(), PATH)
+
                 else:
                     no_progress_epochs += 1
                     print("no_progress_epochs: ", no_progress_epochs)
@@ -99,16 +103,22 @@ def train(train_opts, net, device, aux=False):
             log[prefix + 'loss'] = epoch_loss.item()
             log[prefix + 'accuracy'] = epoch_acc.item()
 
-        print("epoch: {} done in {} seconds".format(epoch, time.time() - epoch_start))
+        if verbose:
+            print("epoch: {} done in {} seconds".format(epoch, time.time() - epoch_start))
+            print(log)
 
-        print(log)
         logs.append(log)
 
         if no_progress_epochs > no_progress_epoch_limit:
             break
 
-    print("best val accuracy", best_val_accuracy)
-    print("best val loss", best_val_loss)
+    if verbose:
+        print("best val accuracy", best_val_accuracy.item())
+        print("best val loss", best_val_loss.item())
+
+
+    net.load_state_dict(torch.load(PATH))
+    net.eval()
 
     test_loss = 0
     test_corrects = 0
@@ -132,6 +142,6 @@ def train(train_opts, net, device, aux=False):
         test_count += inputs.size(0)
 
     test_loss = test_loss / test_count
-    test_corrects = test_corrects.float() / test_count
+    test_accuracy = test_corrects.float() / test_count
 
-    return test_corrects, test_loss, logs
+    return test_accuracy.item(), test_loss.item(), logs
