@@ -27,7 +27,7 @@ def make_config():
 
 
 def main():
-    batch_size = 200
+    batch_size = 500
 
     image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR10(batch_size, 32)
 
@@ -43,10 +43,10 @@ def main():
         "epochs": 100,
         "learning_rate": 0.0001,
         "batch_size": batch_size,
-        "multi_batch_count": 100,
+        "multi_batch_count": 10,
         "dataloaders": dataloaders,
         "dataset_sizes": dataset_sizes,
-        "no_progress_epoch_limit": 10
+        "no_progress_epoch_limit": 5
     }
 
     best_val_accuracy, best_val_loss, logs = train(train_opts, net, device, aux=False)

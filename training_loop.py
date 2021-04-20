@@ -1,7 +1,8 @@
+import time
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
 
 
 def train(train_opts, net, device, aux=False):
@@ -21,8 +22,11 @@ def train(train_opts, net, device, aux=False):
     no_progress_epochs = 0
     no_progress_epoch_limit = train_opts["no_progress_epoch_limit"]
 
+
     for epoch in range(train_opts["epochs"]):  # loop over the dataset multiple times
         log = {}
+        epoch_start = time.time()
+
         for phase in ["train", "val"]:
 
             if phase == 'train':
@@ -95,12 +99,16 @@ def train(train_opts, net, device, aux=False):
             log[prefix + 'loss'] = epoch_loss.item()
             log[prefix + 'accuracy'] = epoch_acc.item()
 
-        print("epoch:" + str(epoch))
+        print("epoch: {} done in {} seconds".format(epoch, time.time() - epoch_start))
+
         print(log)
         logs.append(log)
 
         if no_progress_epochs > no_progress_epoch_limit:
             break
+
+    print("best val accuracy", best_val_accuracy)
+    print("best val loss", best_val_loss)
 
     test_loss = 0
     test_corrects = 0
