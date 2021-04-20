@@ -4,7 +4,7 @@ import torchvision
 import torchvision.transforms as transforms
 
 
-def CIFAR10(batch_size=200, output_size=32):
+def CIFAR100(batch_size=200, output_size=32):
     transform = transforms.Compose(
         [transforms.Resize(output_size),
          transforms.ToTensor(),
