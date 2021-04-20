@@ -15,29 +15,26 @@ from training_loop import train
 def make_config():
     config = []
     config += [("Conv1x1", 64)]
-    config += [("Incep", 64)] * 1
+    config += [("Basic", 64)] * 1
     config += [("Max", 2)]
     config += [("Conv1x1", 128)]
-    config += [("Incep", 128)] * 1
+    config += [("Basic", 128)] * 1
     config += [("Max", 2)]
     config += [("Conv1x1", 256)]
-    config += [("Incep", 256)] * 1
+    config += [("Incep", 256)] * 4
     config += [("Max", 2)]
     return config
 
 
 def main():
     batch_size = 500
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     image_datasets, dataloaders, dataset_sizes, num_classes = CIFAR10(batch_size, 32)
 
-    print(dataset_sizes)
     config = make_config()
     net = CombModel(num_classes=num_classes, config_list=config)
-
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     net = net.to(device)
-    print(net)
 
     train_opts = {
         "epochs": 100,
@@ -46,15 +43,12 @@ def main():
         "multi_batch_count": 10,
         "dataloaders": dataloaders,
         "dataset_sizes": dataset_sizes,
-        "no_progress_epoch_limit": 5
+        "no_progress_epoch_limit": 50
     }
 
-    test_accuracy, test_loss, logs = train(train_opts, net, device, aux=False)
-
-    for log in logs:
-        print(log)
-    print("test accuracy: {}\n test_loss: {}".format(test_accuracy, test_loss))
-
+    test_accuracy, test_loss, logs = train(train_opts, net, device, verbose=True, show_log=True, aux=False)
+    print()
+    print("test accuracy: {} \ntest_loss: {}".format(test_accuracy, test_loss))
 
 if __name__ == "__main__":
     main()

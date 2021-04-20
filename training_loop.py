@@ -1,12 +1,16 @@
+import string
 import time
+import random
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
-PATH = './net.pth'
 
-def train(train_opts, net, device, verbose=True, aux=False):
+def train(train_opts, net, device, verbose=True, show_log=True, aux=False):
+    letters = string.ascii_lowercase
+    PATH = './nets/net-' + ''.join(random.choice(letters) for i in range(10)) + '.pth'
+
     learning_rate = train_opts["learning_rate"]
     batch_size = train_opts["batch_size"]
     multi_batch_count = train_opts["multi_batch_count"]
@@ -98,13 +102,16 @@ def train(train_opts, net, device, verbose=True, aux=False):
 
                 else:
                     no_progress_epochs += 1
-                    print("no_progress_epochs: ", no_progress_epochs)
+                    if verbose:
+                        print("no_progress_epochs: ", no_progress_epochs)
 
             log[prefix + 'loss'] = epoch_loss.item()
             log[prefix + 'accuracy'] = epoch_acc.item()
 
         if verbose:
-            print("epoch: {} done in {} seconds".format(epoch, time.time() - epoch_start))
+            print("epoch: {} finished in {} seconds".format(epoch, time.time() - epoch_start))
+
+        if show_log:
             print(log)
 
         logs.append(log)

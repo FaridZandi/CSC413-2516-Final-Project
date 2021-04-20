@@ -160,6 +160,8 @@ class InceptionA(nn.Module):
 
         self.branch_pool = conv_block(in_planes, path_out_planes, kernel_size=1)
 
+        self.relu = nn.ReLU(inplace=True)
+
     def _forward(self, x: Tensor) -> List[Tensor]:
         branch1x1 = self.branch1x1(x)
 
@@ -178,49 +180,8 @@ class InceptionA(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         outputs = self._forward(x)
-        return torch.cat(outputs, 1)
-
-    class InceptionA(nn.Module):
-
-        def __init__(
-                self,
-                in_planes: int,
-                out_planes: int,
-        ) -> None:
-            super(InceptionA, self).__init__()
-            conv_block = BasicConv2d
-
-            path_out_planes = int(out_planes / 4)
-            self.branch1x1 = conv_block(in_planes, path_out_planes, kernel_size=1)
-
-            self.branch5x5_1 = conv_block(in_planes, path_out_planes, kernel_size=1)
-            self.branch5x5_2 = conv_block(path_out_planes, path_out_planes, kernel_size=5, padding=2)
-
-            self.branch3x3dbl_1 = conv_block(in_planes, path_out_planes, kernel_size=1)
-            self.branch3x3dbl_2 = conv_block(path_out_planes, path_out_planes, kernel_size=3, padding=1)
-            self.branch3x3dbl_3 = conv_block(path_out_planes, path_out_planes, kernel_size=3, padding=1)
-
-            self.branch_pool = conv_block(in_planes, path_out_planes, kernel_size=1)
-
-        def _forward(self, x: Tensor) -> List[Tensor]:
-            branch1x1 = self.branch1x1(x)
-
-            branch5x5 = self.branch5x5_1(x)
-            branch5x5 = self.branch5x5_2(branch5x5)
-
-            branch3x3dbl = self.branch3x3dbl_1(x)
-            branch3x3dbl = self.branch3x3dbl_2(branch3x3dbl)
-            branch3x3dbl = self.branch3x3dbl_3(branch3x3dbl)
-
-            branch_pool = F.avg_pool2d(x, kernel_size=3, stride=1, padding=1)
-            branch_pool = self.branch_pool(branch_pool)
-
-            outputs = [branch1x1, branch5x5, branch3x3dbl, branch_pool]
-            return outputs
-
-        def forward(self, x: Tensor) -> Tensor:
-            outputs = self._forward(x)
-            return torch.cat(outputs, 1)
+        outputs = torch.cat(outputs, 1)
+        return self.relu(outputs)
 
 
 class InceptionARes(nn.Module):
@@ -245,6 +206,8 @@ class InceptionARes(nn.Module):
 
         self.branch_pool = conv_block(in_planes, path_out_planes, kernel_size=1)
 
+        self.relu = nn.ReLU(inplace=True)
+
     def _forward(self, x: Tensor) -> List[Tensor]:
         branch1x1 = self.branch1x1(x)
 
@@ -263,7 +226,9 @@ class InceptionARes(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         outputs = self._forward(x)
-        return torch.cat(outputs, 1)
+        outputs = torch.cat(outputs, 1)
+        outputs += x
+        return self.relu(outputs)
 
 
 class CombModel(nn.Module):
