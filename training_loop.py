@@ -102,4 +102,28 @@ def train(train_opts, net, device, aux=False):
         if no_progress_epochs > no_progress_epoch_limit:
             break
 
-    return best_val_accuracy, best_val_loss, logs
+    test_loss = 0
+    test_corrects = 0
+    test_count = 0
+
+    for i, data in enumerate(dataloaders["test"], 0):
+        inputs, labels = data[0].to(device), data[1].to(device)
+
+        with torch.no_grad():
+            if aux:
+                outputs, _ = net(inputs)
+            else:
+                outputs = net(inputs)
+            loss = loss_func(outputs, labels)
+
+        _, preds = torch.max(outputs, 1)
+        loss = loss.detach() * inputs.size(0)
+        corrects = torch.sum(preds == labels.data)
+        test_loss += loss
+        test_corrects += corrects
+        test_count += inputs.size(0)
+
+    test_loss = test_loss / test_count
+    test_corrects = test_corrects.float() / test_count
+
+    return test_corrects, test_loss, logs

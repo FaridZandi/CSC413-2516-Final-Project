@@ -20,7 +20,7 @@ import warnings
 from typing import Callable, Any, Optional, Tuple, List
 from collections import namedtuple
 
-configuResations = {
+configurations = {
     1: [("Basic", 64), ("Basic", 64),
         ("Max", 2),
         ("Basic", 128), ("Basic", 128), ("Basic", 128),
@@ -196,9 +196,6 @@ class CombModel(nn.Module):
             nn.Linear(256 * 4 * 4, 512),
             nn.ReLU(True),
             nn.Dropout(0.5),
-            nn.Linear(512, 512),
-            nn.ReLU(True),
-            nn.Dropout(0.5),
             nn.Linear(512, num_classes),
         )
 
@@ -240,5 +237,8 @@ def make_layers(configure, batch_norm):
             in_channels = param
         elif type == "Incep":
             layers += [InceptionA(in_channels, param)]
+            in_channels = param
+        elif type == "IncepRes":
+            layers += [InceptionARes(in_channels, param)]
             in_channels = param
     return nn.Sequential(*layers)
